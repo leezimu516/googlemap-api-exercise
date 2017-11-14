@@ -13,33 +13,69 @@ API Course, Lesson 1 -->
    <script type="text/javascript">
      // Create a map variable
      var map;
+
+     // Create a new blank array for all the listing markers.
+     var markers = [];
+
      // Function to initialize the map within the map div
      function initMap() {
        map = new google.maps.Map(document.getElementById('map'), {
          center: {lat: 45.501689, lng: -73.567256},
-         zoom: 14
+         zoom: 12
        });
-       // Create a single latLng literal object.
-       var montreal = {lat: 45.501689, lng: -73.567256};
-       // TODO: Create a single marker appearing on initialize -
-       // Create it with the position of the singleLatLng,
-       // on the map, and give it your own title!
-       var marker = new google.maps.Marker({
-          position: montreal,
-          map: map,
-          draggable: true,
-          animation: google.maps.Animation.DROP
-       });
-       // TODO: create a single infowindow, with your own content.
-       // It must appear on the marker
-       var infowindow = new google.maps.InfoWindow({
-          content:'info window test'
-       });
-       // TODO: create an EVENT LISTENER so that the infowindow opens when
-       // the marker is clicked!
-       marker.addListener('click', function() {
-          infowindow.open(map, marker);
-       })
+       // create location array
+       var locations = [
+        {title: 'University of Montreal', location: {lat: 45.504543, lng: -73.613359}},
+        {title: 'Concordia University', location: {lat: 45.457843, lng: -73.641568}},
+        {title: 'Université du Québec à Montréal', location: {lat: 45.512884, lng:-73.558306}}
+       ];
+
+
+       var largeInfowindow = new google.maps.InfoWindow();
+       var bounds = new google.maps.LatLngBounds();
+
+      // The following group uses the location array to create an array of markers on initialize.
+       for(var i = 0; i < locations.length; i++) {
+          var position = locations[i].location;
+          var title = locations[i].title;
+
+          var marker = new google.maps.Marker({
+             position: position,
+             map: map,
+             title: title,
+             animation: google.maps.Animation.DROP,
+             id: i
+          });
+
+          //push the marker to the  markers array
+          markers.push(marker);
+
+          //  extent the boundary of the map for each markers
+          bounds.extend(marker.position)
+          //add click listener
+          marker.addListener('click', function() {
+            populateInfowindow(this, largeInfowindow);
+          });
+
+       }
+       map.fitBounds(bounds);
+      
+     }
+
+     // this function populate the infowindow when the marker is clicked. We'll only allow one 
+     // infowindow which will open at the marker that is clicked, and populate based on thar markers 
+     // position
+     function populateInfowindow(marker, infowindow) {
+        if (infowindow.marker != marker) {
+            infowindow.marker = marker;
+            infowindow.setContent(marker.title);
+            infowindow.open(map, marker);
+
+            // make sure the marker property is clearly if the infowindow is closed
+            infowindow.addListener('closeclick', function() {
+                infowindow.setMarker(null);
+            });
+        }
      }
    </script>
    <!--TODO: Insert your API Key in the below call to load the API.-->
