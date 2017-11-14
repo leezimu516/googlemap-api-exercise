@@ -50,6 +50,11 @@ API Course, Lesson 1 -->
         text-align: left;
         width: 340px
      }
+
+     #pano {
+        width: 300px;
+        height: 300px;
+     }
    </style>
  </head>
  <body>
@@ -136,15 +141,50 @@ API Course, Lesson 1 -->
      // position
      function populateInfowindow(marker, infowindow) {
         if (infowindow.marker != marker) {
+            // Clear the infowindow content to give the streetview time to load.
+            infowindow.setContent('');
             infowindow.marker = marker;
-            infowindow.setContent(marker.title);
-            infowindow.open(map, marker);
 
             // make sure the marker property is clearly if the infowindow is closed
             infowindow.addListener('closeclick', function() {
                 infowindow.setMarker(null);
             });
+
+
+            // add street view
+            var streetViewService = new google.maps.StreetViewService();
+            var radius = 50;
+
+            function getStreetView(data, status) {
+                if (status == google.maps.StreetViewStatus.OK) {
+                    var nearStreetViewLocation = data.location.latLng;
+                    var heading = google.maps.geometry.spherical.computeHeading(
+                      nearStreetViewLocation, marker.position);
+
+                    infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+                    var panoramaOptions = {
+                        position:nearStreetViewLocation,
+
+                        pov: {
+                          heading: heading,
+                          pitch: 30
+                        }
+                    };
+
+                    var panorama = new google.maps.StreetViewPanorama(
+                      document.getElementById('pano'), panoramaOptions);   
+                } else {
+                    infowindow.setContent('<div>' + marker.title + '</div' + 
+                      '<div>No Street View Found</div>');
+                }
+
+            }
+
+            streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+            infowindow.open(map, marker);
+            
         }
+
      }
 
 
@@ -178,11 +218,11 @@ API Course, Lesson 1 -->
           new google.maps.Size(21,34));
         return markerImage;
       }
-      
+
    </script>
    <!--TODO: Insert your API Key in the below call to load the API.-->
    <script async defer
-     src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyBMBCIDzTVn1pN_ec0m799kW00YdOzbknQ&callback=initMap">
+     src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyBMBCIDzTVn1pN_ec0m799kW00YdOzbknQ&libraries=geometry&callback=initMap">
    </script>
  </body>
 </html>
