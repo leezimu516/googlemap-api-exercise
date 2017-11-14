@@ -4,12 +4,67 @@ API Course, Lesson 1 -->
  <head>
  <!-- styles put here, but you can include a CSS file and reference it instead! -->
    <style type="text/css">
-     html, body { height: 100%; margin: 0; padding: 0; }
-     #map { height: 100%; }
+     html, 
+     body { 
+        height: 100%; 
+        margin: 0; 
+        padding: 0; 
+     }
+
+     .container {
+        height: 100%;
+        position: relative;
+     }
+
+     input {
+        font-size: 12ps;
+     }
+
+     h1 {
+        color: #525454;
+        font-size: 22px;
+        margin: 0 0 10px 0;
+        text-align: center;
+     }
+
+     #map { 
+        bottom:0px;
+        height: 100%;
+        left: 362px;
+        position: absolute;
+        right: 0px;
+    }
+     
+     #show-listings,
+     #hide-listings {
+        width: 48%;
+     }
+
+     .option-box {
+        background: #fff;
+        border: 1px solid #999;
+        border-radius: 3px;
+        height: 100%;
+        line-height: 35px;
+        padding: 10px 10px 30px 10px;
+        text-align: left;
+        width: 340px
+     }
    </style>
  </head>
  <body>
-   <div id="map"></div>
+   <div class="container">
+      <div class="option-box">
+          <h1>find your home</h1>
+          <div>
+              <input id="show-listings" type="button" value="Show Listings">
+              <input id="hide-listings" type="button" value="Hide Listings">
+          </div>
+      </div>
+      <div id="map"></div>
+   </div>
+   
+
    <script type="text/javascript">
      // Create a map variable
      var map;
@@ -41,7 +96,7 @@ API Course, Lesson 1 -->
 
           var marker = new google.maps.Marker({
              position: position,
-             map: map,
+             
              title: title,
              animation: google.maps.Animation.DROP,
              id: i
@@ -50,15 +105,16 @@ API Course, Lesson 1 -->
           //push the marker to the  markers array
           markers.push(marker);
 
-          //  extent the boundary of the map for each markers
-          bounds.extend(marker.position)
           //add click listener
           marker.addListener('click', function() {
             populateInfowindow(this, largeInfowindow);
           });
 
        }
-       map.fitBounds(bounds);
+       
+
+       document.getElementById('show-listings').addEventListener('click', showListings);
+       document.getElementById('hide-listings').addEventListener('click', hideListings);
       
      }
 
@@ -75,6 +131,24 @@ API Course, Lesson 1 -->
             infowindow.addListener('closeclick', function() {
                 infowindow.setMarker(null);
             });
+        }
+     }
+
+
+     // this function will show the marker listing
+     function showListings() {
+        var bounds = new google.maps.LatLngBounds();
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(map);
+          bounds.extend(markers[i].position);
+        }
+        map.fitBounds(bounds);
+     }
+
+     // this functio will hide the marker listings
+     function hideListings() {
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);
         }
      }
    </script>
